@@ -1,0 +1,47 @@
+kind: Environment
+name: preview
+type: primary
+urlHandle: ya4d654sd
+components:
+    -
+        kind: Application
+        name: app
+        gitRepo: 'https://github.com/MHeuts/Avans_DevOps.git'
+        gitBranch: main
+        gitApplicationPath: /
+        dockerCompose:
+            build:
+                context: .
+                dockerfile: dockerfile
+            environment:
+                DB_NAME: mydb
+                MONGO_URL: 'mongodb://mongodb:27017'
+            ports:
+                - '3000:3000'
+        hosts:
+            -
+                hostname: 'app-{{ env.base_domain }}'
+                path: /
+                servicePort: 3000
+        volumes:
+            -
+                name: mongo-data
+                mount: /data/db
+                subPath: ''
+    -
+        kind: Database
+        name: mongodb
+        dockerCompose:
+            image: 'mongodb/mongodb-community-server:6.0-ubi8'
+            ports:
+                - '27017:27017'
+        volumes:
+            -
+                name: mongo-data
+                mount: /data/db
+                subPath: ''
+volumes:
+    -
+        name: mongo-data
+        size: 1Gi
+        type: network
